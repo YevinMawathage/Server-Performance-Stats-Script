@@ -1,61 +1,100 @@
-Server Performance Stats Analysis Script
+# Server Performance Stats Analysis Script
 
-A simple but powerful Bash script to analyse and report basic Linux server performance statistics. This tool provides a quick snapshot of system health, resource usage, and running processes, making it easier for sysadmins and developers to debug performance issues.
+A simple but powerful Bash script to analyze and report basic Linux server performance statistics. This tool provides a quick snapshot of system health, resource usage, and running processes, making it easier for sysadmins and developers to debug performance issues.
 
-🚀 Features
+## 🚀 Features
 
-The server-stats.sh script calculates and displays the following metrics:
+The `server-stats.sh` script calculates and displays the following metrics:
 
-Core Requirements
+### Core Requirements
 
-Total CPU Usage: Calculates the current CPU load percentage.
+- **Total CPU Usage**: Calculates the current CPU load percentage
+- **Memory Usage**: Display total, used, and free memory with percentage calculations
+- **Disk Usage**: Displays total, used, and free disk space with percentage calculations
+- **Top 5 Processes by CPU**: Identifies which processes are consuming the most processing power
+- **Top 5 Processes by Memory**: Identifies which processes are consuming the most RAM
 
-Memory Usage: Display total, used, and free memory with percentage calculations.
+### Extra Stats (Stretch Goals)
 
-Disk Usage: Displays total, used, and free disk space with percentage calculations.
+- **OS Version**: Displays the Linux distribution and version
+- **Uptime**: Shows how long the server has been running
+- **Load Average**: Displays the system load averages for the last 1, 5, and 15 minutes
+- **Logged-in Users**: Lists currently active user sessions
+- **Failed Login Attempts**: Checks logs for failed authentication attempts (requires sudo/root access for full accuracy)
 
-Top 5 Processes by CPU: Identifies which processes are consuming the most processing power.
+## 📋 Prerequisites
 
-Top 5 Processes by Memory: Identifies which processes are consuming the most RAM.
+- A Linux-based operating system (Ubuntu, CentOS, Debian, etc.)
+- Bash shell (standard on almost all Linux distros)
+- `sysstat` package (optional but recommended for advanced CPU stats, though this script uses standard `top`/`vmstat` logic to remain dependency-free where possible)
 
-Extra Stats (Stretch Goals)
+## 🛠️ Installation & Usage
 
-OS Version: Displays the Linux distribution and version.
+1. **Clone the repository:**
 
-Uptime: Shows how long the server has been running.
+   ```bash
+   git clone https://github.com/YevinMawathage/Server-Performance-Stats-Script.git
+   cd Server-Performance-Stats-Script
+   ```
 
-Load Average: Displays the system load averages for the last 1, 5, and 15 minutes.
+2. **Make the script executable:**
 
-Logged-in Users: Lists currently active user sessions.
+   ```bash
+   chmod +x server-stats.sh
+   ```
 
-Failed Login Attempts: Checks logs for failed authentication attempts (requires sudo/root access for full accuracy).
+3. **Run the script:**
 
-📋 Prerequisites
+   ```bash
+   ./server-stats.sh
+   ```
 
-A Linux-based operating system (Ubuntu, CentOS, Debian, etc.).
+   > **Note**: Some stats, like failed login attempts, may require sudo to read log files.
 
-Bash shell (standard on almost all Linux distros).
+   ```bash
+   sudo ./server-stats.sh
+   ```
 
-sysstat package (optional but recommended for advanced CPU stats, though this script uses standard top/vmstat logic to remain dependency-free where possible).
+## 📝 Sample Output
 
-🛠️ Installation & Usage
+```
+-------------------------------------
+SERVER PERFORMANCE ANALYSIS
+-------------------------------------
+Date: Tue Nov 18 14:30:00 UTC 2025
+-------------------------------------
 
-Clone the repository:
+Total CPU Usage: 12.5%
 
-git clone [https://github.com/yourusername/server-stats.git](https://github.com/yourusername/server-stats.git)
-cd server-stats
+Total Memory Usage:
+Used: 4096MB / Total: 16384MB (25.00%)
+Free: 12288MB
 
+Total Disk Usage:
+Used: 25GB / Total: 100GB (25.00%)
+Free: 75GB
 
-Make the script executable:
+Top 5 Processes by CPU:
+PID    USER   %CPU   COMMAND
+1234   root   5.5    python3
+...
 
-chmod +x server-stats.sh
+Top 5 Processes by Memory:
+PID    USER   %MEM   COMMAND
+5678   www    12.2   java
+...
+-------------------------------------
+```
 
+## 🤝 Contributing
 
-Run the script:
+Contributions are welcome! Feel free to fork this repository and submit pull requests to add more metrics or improve the calculation logic.
 
-./server-stats.sh
+## 📄 License
 
+This project is open source and available under the [MIT License](LICENSE).
 
-(Note: Some stats, like failed login attempts, may require sudo to read log files).
+## 👨‍💻 Author
 
-sudo ./server-stats.sh
+**Yevin Mawathage**
+- GitHub: [@YevinMawathage](https://github.com/YevinMawathage)
