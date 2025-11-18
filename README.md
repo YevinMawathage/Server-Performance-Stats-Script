@@ -2,6 +2,8 @@
 
 A simple but powerful Bash script to analyze and report basic Linux server performance statistics. This tool provides a quick snapshot of system health, resource usage, and running processes, making it easier for sysadmins and developers to debug performance issues.
 
+## Project URL: https://roadmap.sh/projects/server-stats
+
 ## 🚀 Features
 
 The `server-stats.sh` script calculates and displays the following metrics:
