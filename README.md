@@ -8,6 +8,22 @@ A simple but powerful Bash script collection to analyze and report server perfor
 
 This repository contains two scripts tailored for different operating systems:
 
+### 📊 Core Requirements
+
+- ✅ **Total CPU Usage** - Calculates the current CPU load percentage
+- ✅ **Memory Usage** - Display total, used, and free memory with percentage calculations
+- ✅ **Disk Usage** - Displays total, used, and free disk space with percentage calculations
+- ✅ **Top 5 Processes by CPU** - Identifies which processes are consuming the most processing power
+- ✅ **Top 5 Processes by Memory** - Identifies which processes are consuming the most RAM
+
+### 🎯 Extra Stats (Stretch Goals)
+
+- 🔹 **OS Version** - Displays the Linux distribution and version
+- 🔹 **Uptime** - Shows how long the server has been running
+- 🔹 **Load Average** - Displays the system load averages for the last 1, 5, and 15 minutes
+- 🔹 **Logged-in Users** - Lists currently active user sessions
+- 🔹 **Failed Login Attempts** - Checks logs for failed authentication attempts (requires sudo/root access for full accuracy)
+
 ### 📁 Script Files
 
 #### 1. **Linux Script** (`script/Linux/server-stats.sh`)
