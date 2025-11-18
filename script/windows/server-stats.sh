@@ -66,11 +66,90 @@ get_memory_usage() {
     echo "$mem_stats"
 }
 
+# Function to get disk usage statistics for all disks on Windows
+get_disk_usage() {
+    # Use PowerShell to get disk statistics for all local drives
+    powershell.exe -Command "
+        \$drives = Get-PSDrive -PSProvider FileSystem | Where-Object { \$_.Used -ne \$null };
+        \$totalSize = 0;
+        \$totalUsed = 0;
+        \$totalFree = 0;
+        
+        Write-Output 'INDIVIDUAL_DISKS_START';
+        
+        foreach (\$drive in \$drives) {
+            \$driveSize = \$drive.Used + \$drive.Free;
+            \$driveUsed = \$drive.Used;
+            \$driveFree = \$drive.Free;
+            
+            \$driveSizeGB = [math]::Round(\$driveSize / 1GB, 2);
+            \$driveUsedGB = [math]::Round(\$driveUsed / 1GB, 2);
+            \$driveFreeGB = [math]::Round(\$driveFree / 1GB, 2);
+            
+            if (\$driveSizeGB -gt 0) {
+                \$driveUsedPercent = [math]::Round((\$driveUsedGB / \$driveSizeGB) * 100, 2);
+                \$driveFreePercent = [math]::Round((\$driveFreeGB / \$driveSizeGB) * 100, 2);
+            } else {
+                \$driveUsedPercent = 0;
+                \$driveFreePercent = 0;
+            }
+            
+            Write-Output \"\$(\$drive.Name)|\$driveSizeGB|\$driveUsedGB|\$driveUsedPercent|\$driveFreeGB|\$driveFreePercent\";
+            
+            \$totalSize += \$driveSize;
+            \$totalUsed += \$driveUsed;
+            \$totalFree += \$driveFree;
+        }
+        
+        Write-Output 'INDIVIDUAL_DISKS_END';
+        
+        \$totalSizeGB = [math]::Round(\$totalSize / 1GB, 2);
+        \$totalUsedGB = [math]::Round(\$totalUsed / 1GB, 2);
+        \$totalFreeGB = [math]::Round(\$totalFree / 1GB, 2);
+        
+        if (\$totalSizeGB -gt 0) {
+            \$usedPercent = [math]::Round((\$totalUsedGB / \$totalSizeGB) * 100, 2);
+            \$freePercent = [math]::Round((\$totalFreeGB / \$totalSizeGB) * 100, 2);
+        } else {
+            \$usedPercent = 0;
+            \$freePercent = 0;
+        }
+        
+        Write-Output \"TOTAL|\$totalSizeGB|\$totalUsedGB|\$usedPercent|\$totalFreeGB|\$freePercent\";
+    " 2>/dev/null | tr -d '\r' | sed 's/,/./g'
+}
+
 # Get and display total CPU usage
 total_cpu=$(get_total_cpu_usage)
 
 # Get memory usage statistics
 IFS='|' read -r TOTAL_MEM USED_MEM USED_PERCENT FREE_MEM FREE_PERCENT <<< "$(get_memory_usage)"
+
+# Get disk usage statistics
+DISK_OUTPUT=$(get_disk_usage)
+
+# Parse individual disk information
+INDIVIDUAL_DISKS=()
+CAPTURE=false
+
+while IFS= read -r line; do
+    if [[ "$line" == "INDIVIDUAL_DISKS_START" ]]; then
+        CAPTURE=true
+        continue
+    elif [[ "$line" == "INDIVIDUAL_DISKS_END" ]]; then
+        CAPTURE=false
+        continue
+    elif [[ "$line" == TOTAL\|* ]]; then
+        IFS='|' read -r _ TOTAL_DISK USED_DISK USED_DISK_PERCENT FREE_DISK FREE_DISK_PERCENT <<< "$line"
+        continue
+    fi
+    
+    if [ "$CAPTURE" = true ] && [ -n "$line" ]; then
+        INDIVIDUAL_DISKS+=("$line")
+    fi
+done <<< "$DISK_OUTPUT"
+
+
 
 
 
@@ -88,10 +167,30 @@ IFS='|' read -r TOTAL_MEM USED_MEM USED_PERCENT FREE_MEM FREE_PERCENT <<< "$(get
 
 # Display the results
 echo "Total CPU Usage: $total_cpu%"
+echo ""
 echo "Memory Usage Report (in MB):"
 echo "---------------------------"
 echo "Total Memory: $TOTAL_MEM MB"
 echo "Used Memory:  $USED_MEM MB ($USED_PERCENT%)"
 echo "Free Memory:  $FREE_MEM MB ($FREE_PERCENT%)"
+echo ""
+echo "Disk Usage Report (in GB):"
+echo "---------------------------"
+
+# Display individual disk information
+for disk_info in "${INDIVIDUAL_DISKS[@]}"; do
+    IFS='|' read -r DRIVE_NAME DRIVE_SIZE DRIVE_USED DRIVE_USED_PERCENT DRIVE_FREE DRIVE_FREE_PERCENT <<< "$disk_info"
+    echo "Drive $DRIVE_NAME:"
+    echo "  Total:  $DRIVE_SIZE GB"
+    echo "  Used:   $DRIVE_USED GB ($DRIVE_USED_PERCENT%)"
+    echo "  Free:   $DRIVE_FREE GB ($DRIVE_FREE_PERCENT%)"
+    echo ""
+done
+
+# Display total disk statistics
+echo "Total Disk Statistics:"
+echo "  Total:  $TOTAL_DISK GB"
+echo "  Used:   $USED_DISK GB ($USED_DISK_PERCENT%)"
+echo "  Free:   $FREE_DISK GB ($FREE_DISK_PERCENT%)"
 
 
