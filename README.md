@@ -2,6 +2,8 @@
 
 A simple but powerful Bash script collection to analyze and report server performance statistics for both **Linux** and **Windows** systems. This tool provides a quick snapshot of system health, resource usage, and running processes, making it easier for sysadmins and developers to debug performance issues across different platforms.
 
+## Project URL: https://roadmap.sh/projects/server-stats
+
 ## 🚀 Features
 
 This repository contains two scripts tailored for different operating systems:
