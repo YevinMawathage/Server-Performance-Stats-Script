@@ -66,6 +66,40 @@ get_memory_usage() {
     echo "$mem_stats"
 }
 
+# Function to get top 5 processes by CPU usage on Windows
+get_top_cpu_processes() {
+    # Use PowerShell to get top 5 processes by CPU usage
+    powershell.exe -Command "
+        Get-Process | 
+        Where-Object { \$_.CPU -ne \$null } | 
+        Sort-Object CPU -Descending | 
+        Select-Object -First 5 | 
+        ForEach-Object {
+            \$name = \$_.ProcessName;
+            \$cpu = [math]::Round(\$_.CPU, 2);
+            \$pid = \$_.Id;
+            Write-Output \"\$name|\$pid|\$cpu\"
+        }
+    " 2>/dev/null | tr -d '\r' | sed 's/,/./g'
+}
+
+# Function to get top 5 processes by Memory usage on Windows
+get_top_memory_processes() {
+    # Use PowerShell to get top 5 processes by memory usage
+    powershell.exe -Command "
+        Get-Process | 
+        Where-Object { \$_.WorkingSet -ne \$null } | 
+        Sort-Object WorkingSet -Descending | 
+        Select-Object -First 5 | 
+        ForEach-Object {
+            \$name = \$_.ProcessName;
+            \$memoryMB = [math]::Round(\$_.WorkingSet / 1MB, 2);
+            \$pid = \$_.Id;
+            Write-Output \"\$name|\$pid|\$memoryMB\"
+        }
+    " 2>/dev/null | tr -d '\r' | sed 's/,/./g'
+}
+
 # Function to get disk usage statistics for all disks on Windows
 get_disk_usage() {
     # Use PowerShell to get disk statistics for all local drives
@@ -127,6 +161,12 @@ IFS='|' read -r TOTAL_MEM USED_MEM USED_PERCENT FREE_MEM FREE_PERCENT <<< "$(get
 
 # Get disk usage statistics
 DISK_OUTPUT=$(get_disk_usage)
+
+# Get top CPU processes
+TOP_CPU_PROCESSES=$(get_top_cpu_processes)
+
+# Get top Memory processes
+TOP_MEMORY_PROCESSES=$(get_top_memory_processes)
 
 # Parse individual disk information
 INDIVIDUAL_DISKS=()
@@ -192,5 +232,39 @@ echo "Total Disk Statistics:"
 echo "  Total:  $TOTAL_DISK GB"
 echo "  Used:   $USED_DISK GB ($USED_DISK_PERCENT%)"
 echo "  Free:   $FREE_DISK GB ($FREE_DISK_PERCENT%)"
+echo ""
+echo "Top 5 Processes by CPU Usage:"
+echo "------------------------------"
+printf "%-30s %-10s %-15s\n" "Process Name" "PID" "CPU Time (s)"
+echo "-----------------------------------------------------------"
+
+# Display top CPU processes
+if [ -n "$TOP_CPU_PROCESSES" ]; then
+    while IFS='|' read -r PROC_NAME PROC_PID PROC_CPU; do
+        if [ -n "$PROC_NAME" ]; then
+            printf "%-30s %-10s %-15s\n" "$PROC_NAME" "$PROC_PID" "$PROC_CPU"
+        fi
+    done <<< "$TOP_CPU_PROCESSES"
+else
+    echo "No process data available"
+fi
+echo ""
+echo "Top 5 Processes by Memory Usage:"
+echo "---------------------------------"
+printf "%-30s %-10s %-15s\n" "Process Name" "PID" "Memory (MB)"
+echo "-----------------------------------------------------------"
+
+# Display top Memory processes
+if [ -n "$TOP_MEMORY_PROCESSES" ]; then
+    while IFS='|' read -r PROC_NAME PROC_PID PROC_MEM; do
+        if [ -n "$PROC_NAME" ]; then
+            printf "%-30s %-10s %-15s\n" "$PROC_NAME" "$PROC_PID" "$PROC_MEM"
+        fi
+    done <<< "$TOP_MEMORY_PROCESSES"
+else
+    echo "No process data available"
+fi
+
+
 
 
